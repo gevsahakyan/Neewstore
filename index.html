@@ -123,7 +123,16 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, getDoc, addDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const app = initializeApp({ apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU", authDomain: "online-shop-74e3e.firebaseapp.com", projectId: "online-shop-74e3e" });
+        // ԱՄԲՈՂՋԱԿԱՆ FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU",
+            authDomain: "online-shop-74e3e.firebaseapp.com",
+            projectId: "online-shop-74e3e",
+            storageBucket: "online-shop-74e3e.firebasestorage.app",
+            messagingSenderId: "110533352997",
+            appId: "1:110533352997:web:a406119b43a8250abba9cc"
+        };
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let globalSettings = {}; let productsData = []; let categoriesData = {};
@@ -146,7 +155,7 @@
                 productsData = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 renderCategoryChips(); renderFooter(); filterAndRender(); updateBadges();
-            } catch (err) { console.error(err); document.getElementById('loading').innerHTML = "<p class='text-red-500 font-bold'>Կապի խափանում։</p>"; }
+            } catch (err) { console.error(err); document.getElementById('loading').innerHTML = "<p class='text-red-500 font-bold'>Կապի խափանում։ Ստուգեք ինտերնետ կապը:</p>"; }
         }
 
         function renderFooter() {
@@ -268,8 +277,3 @@
 
         window.openModal = (id) => {
             const p = productsData.find(x => x.id === id); if(!p) return;
-            const price = Number(p.discountPrice) > 0 ? Number(p.discountPrice) : Number(p.price);
-            const imgs = (p.images && p.images.length > 0) ? p.images : [p.imageUrl || ''];
-            
-            document.getElementById('modalImg').src = imgs[0];
-            document.getElementById('modalTitle').innerText = p.
