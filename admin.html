@@ -77,7 +77,7 @@
                     <input type="file" id="imageInput" accept="image/*" multiple class="text-sm">
                     <div id="imagePreviews" class="flex gap-2 overflow-x-auto mt-2"></div>
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">Պահպանել</button>
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">Պահպանել Ապրանքը</button>
             </form>
             <div id="formStatus" class="mt-3 text-center text-sm font-bold hidden p-3 rounded-xl"></div>
         </div>
@@ -106,7 +106,7 @@
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">TikTok Հղում</label><input type="url" id="setTt" class="glass-input"></div>
                     <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Facebook Հղում</label><input type="url" id="setFb" class="glass-input"></div>
                 </div>
-                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl">Պահպանել</button>
+                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl">Պահպանել Կարգավորումները</button>
                 <div id="settingsStatus" class="mt-2 text-center text-sm font-bold hidden p-3 rounded-xl"></div>
             </form>
         </div>
@@ -116,8 +116,18 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const app = initializeApp({ apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU", authDomain: "online-shop-74e3e.firebaseapp.com", projectId: "online-shop-74e3e" });
-        const db = getFirestore(app); const IMGBB_KEY = "e134fd6a4cb5bc87bedee58fe7eb70c6";
+        // ԱՄԲՈՂՋԱԿԱՆ FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU",
+            authDomain: "online-shop-74e3e.firebaseapp.com",
+            projectId: "online-shop-74e3e",
+            storageBucket: "online-shop-74e3e.firebasestorage.app",
+            messagingSenderId: "110533352997",
+            appId: "1:110533352997:web:a406119b43a8250abba9cc"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const IMGBB_KEY = "e134fd6a4cb5bc87bedee58fe7eb70c6";
 
         // --- ԱՆՎՏԱՆԳՈՒԹՅՈՒՆ (LOGIN) ---
         const ADMIN_PASS = "9598";
@@ -134,7 +144,6 @@
         };
         window.logout = () => { localStorage.removeItem('adminAuth'); location.reload(); };
 
-        // Auto-login if remembered
         if(localStorage.getItem('adminAuth') === ADMIN_PASS) {
             document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminDashboard').classList.remove('hidden');
             document.body.classList.remove('items-center', 'justify-center'); document.body.classList.add('block');
@@ -154,10 +163,11 @@
             document.getElementById('btn-' + tabId).classList.add('active');
             
             if(tabId === 'tabAdd' && !document.getElementById('editId').value) {
-                document.getElementById('addForm').reset(); document.getElementById('submitBtn').innerText = "Պահպանել"; document.getElementById('submitBtn').classList.replace('bg-green-600', 'bg-indigo-600'); document.getElementById('imagePreviews').innerHTML = ''; selectedFiles = [];
+                document.getElementById('addForm').reset(); document.getElementById('submitBtn').innerText = "Պահպանել Ապրանքը"; document.getElementById('submitBtn').classList.replace('bg-green-600', 'bg-indigo-600'); document.getElementById('imagePreviews').innerHTML = ''; selectedFiles = [];
             }
             if(tabId === 'tabProductsList') loadProducts();
             if(tabId === 'tabOrders') loadOrders();
+            if(tabId === 'tabSet') loadSettings();
         };
 
         // --- ՊԱՏՎԵՐՆԵՐԻ ԼՈԳԻԿԱ ---
@@ -235,9 +245,8 @@
             const p = products.find(x => x.id === id); if(!p) return;
             document.getElementById('editId').value = p.id; document.getElementById('title').value = p.title; document.getElementById('price').value = p.price; document.getElementById('discountPrice').value = p.discountPrice || '';
             document.getElementById('category').value = p.category || ''; updateSubcatSelect(); document.getElementById('subcategory').value = p.subcategory || ''; document.getElementById('description').value = p.description || '';
-            document.getElementById('submitBtn').innerText = "Թարմացնել"; document.getElementById('submitBtn').classList.replace('bg-indigo-600', 'bg-green-600'); switchTab('tabAdd');
+            document.getElementById('submitBtn').innerText = "Թարմացնել Ապրանքը"; document.getElementById('submitBtn').classList.replace('bg-indigo-600', 'bg-green-600'); switchTab('tabAdd');
         };
 
         const imgInput = document.getElementById('imageInput');
-        imgInput.addEventListener('change', (e) => { Array.from(e.target.files).forEach(f => selectedFiles.push({ file:f, url: URL.createObjectURL(f) })); document.getElementById('imagePreviews').innerHTML = selectedFiles.map((f,i) => `<div class="relative w-16 h-16"><img src="${f.url}" class="w-full h-full object-cover rounded"><button type="button" onclick="window.delImg(${i})" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-1 rounded">X</button></div>`).join(''); imgInput.value = ''; });
-        window.delImg = (i) => { selectedFiles.splice(i, 1); imgInput.dispatchEvent(new Event('chang
+        imgInput.addEventListener('change', (e) => { Array.from(e.target.files).forEach(f => selectedFiles.push({ file:f, url: URL.createObjectURL(f) })); document.getElementById('imagePreviews').innerHTML = selectedFiles.map((f,i) => `<div cla
