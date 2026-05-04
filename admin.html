@@ -2,282 +2,242 @@
 <html lang="hy">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Newstore - Պրեմիում Ադմին</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ադմին - Newstore</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            min-height: 100vh; 
-            margin: 0;
-            padding: 0;
-        }
-        @media (min-width: 768px) { body { padding: 2rem; } }
-        
-        .glass-panel { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(24px); 
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.9); 
-            border-radius: 0; 
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); 
-            min-height: 100vh;
-        }
-        @media (min-width: 768px) { .glass-panel { border-radius: 28px; min-height: auto; } }
-
-        .glass-input { 
-            background: rgba(248, 250, 252, 0.8); 
-            border: 1px solid rgba(226, 232, 240, 0.8); 
-            transition: all 0.3s ease; 
-            font-size: 16px; 
-        }
-        .glass-input:focus { 
-            background: #ffffff; 
-            outline: none; 
-            border-color: #6366f1; 
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); 
-        }
-        
-        .tab-btn { transition: all 0.3s ease; color: #64748b; font-weight: 600; }
-        .tab-btn.active { 
-            background: #ffffff; 
-            color: #4f46e5; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); 
-        }
-        
-        .img-preview-card {
-            width: 80px; height: 80px; flex-shrink: 0; position: relative;
-            border-radius: 12px; border: 2px solid #e2e8f0; overflow: hidden;
-            background: white; transition: all 0.3s;
-        }
-        @media (min-width: 768px) { .img-preview-card { width: 100px; height: 100px; } }
-        
+        body { background: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        .glass-input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; width: 100%; transition: 0.3s; }
+        .glass-input:focus { background: #fff; border-color: #6366f1; outline: none; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .tab-btn { padding: 10px; text-align: center; font-weight: bold; color: #64748b; border-radius: 12px; cursor: pointer; transition: 0.3s; font-size: 13px; }
+        .tab-btn.active { background: #4f46e5; color: white; box-shadow: 0 4px 15px rgba(79,70,229,0.3); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="p-2 md:p-6 text-gray-800 flex items-center justify-center min-h-screen">
 
-    <div class="glass-panel w-full max-w-3xl mx-auto p-5 md:p-10">
+    <div id="loginScreen" class="glass-panel w-full max-w-sm p-8 text-center">
+        <h2 class="text-2xl font-black text-indigo-600 mb-6">Ադմին Մուտք</h2>
+        <input type="password" id="adminPass" placeholder="Մուտքագրեք գաղտնաբառը" class="glass-input text-center mb-4 text-xl tracking-widest">
+        <div class="flex items-center justify-center gap-2 mb-6">
+            <input type="checkbox" id="rememberMe" class="w-4 h-4 cursor-pointer">
+            <label for="rememberMe" class="text-sm font-bold text-gray-500 cursor-pointer">Հիշել ինձ</label>
+        </div>
+        <button onclick="checkAuth()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 shadow-lg">Մուտք</button>
+        <p id="loginErr" class="text-red-500 text-sm font-bold mt-3 hidden">Սխալ գաղտնաբառ</p>
+    </div>
+
+    <div id="adminDashboard" class="glass-panel w-full max-w-5xl p-5 md:p-8 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-black text-indigo-600">Ադմին Պանել</h1>
+            <button onclick="logout()" class="text-red-500 font-bold text-sm bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">Ելք</button>
+        </div>
         
-        <div class="flex flex-col items-center mb-6 md:mb-10 text-center">
-            <h1 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-6 tracking-tight">Ադմինիստրացիա</h1>
-            
-            <div class="flex w-full md:w-3/4 bg-gray-200/50 p-1.5 rounded-2xl border border-gray-200/60 shadow-inner">
-                <button id="tabProductBtn" class="tab-btn active flex-1 py-3 md:py-3.5 rounded-xl text-sm md:text-base">📦 Ապրանքներ</button>
-                <button id="tabSettingsBtn" class="tab-btn flex-1 py-3 md:py-3.5 rounded-xl text-sm md:text-base">⚙️ Կարգավորումներ</button>
+        <div class="grid grid-cols-5 gap-2 bg-gray-100 p-2 rounded-2xl mb-6 overflow-x-auto hide-scrollbar">
+            <div onclick="switchTab('tabOrders')" id="btn-tabOrders" class="tab-btn active min-w-[100px]">🛍️ Պատվերներ</div>
+            <div onclick="switchTab('tabProductsList')" id="btn-tabProductsList" class="tab-btn min-w-[100px]">📋 Ապրանքներ</div>
+            <div onclick="switchTab('tabAdd')" id="btn-tabAdd" class="tab-btn min-w-[100px]">➕ Ավելացնել</div>
+            <div onclick="switchTab('tabCats')" id="btn-tabCats" class="tab-btn min-w-[100px]">🗂 Կատեգ.</div>
+            <div onclick="switchTab('tabSet')" id="btn-tabSet" class="tab-btn min-w-[100px]">⚙️ Կարգ.</div>
+        </div>
+
+        <div id="tabOrders" class="tab-content">
+            <h2 class="font-bold text-gray-500 uppercase mb-4 text-sm">Բոլոր Պատվերները</h2>
+            <div id="ordersList" class="space-y-4"></div>
+        </div>
+
+        <div id="tabProductsList" class="tab-content hidden">
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="adminSearch" placeholder="Որոնել..." class="glass-input flex-1">
+                <select id="adminCatFilter" class="glass-input w-1/3 cursor-pointer"><option value="Բոլորը">Բոլորը</option></select>
+            </div>
+            <div class="overflow-x-auto bg-white rounded-xl border border-gray-200">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                        <tr><th class="p-3">Նկար</th><th class="p-3">Անվանում</th><th class="p-3">Գին</th><th class="p-3 text-right"></th></tr>
+                    </thead>
+                    <tbody id="adminProductsTbody" class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
         </div>
 
-        <div id="tabProduct">
-            <form id="addForm" class="space-y-4 md:space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Ապրանքի Անվանում</label>
-                        <input type="text" id="title" required placeholder="օր.՝ iPhone 15 Pro, 256GB" class="glass-input w-full p-3.5 md:p-4 rounded-xl md:rounded-2xl">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Գին (֏)</label>
-                        <input type="number" id="price" required placeholder="500000" class="glass-input w-full p-3.5 md:p-4 rounded-xl md:rounded-2xl">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Զեղչված Գին (֏) <span class="font-normal opacity-70">- ըստ ցանկության</span></label>
-                        <input type="number" id="discountPrice" placeholder="450000" class="glass-input w-full p-3.5 md:p-4 rounded-xl md:rounded-2xl border-indigo-100">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Կատեգորիա</label>
-                        <select id="category" class="glass-input w-full p-3.5 md:p-4 rounded-xl md:rounded-2xl cursor-pointer">
-                            <option value="Էլեկտրոնիկա">📱 Էլեկտրոնիկա</option>
-                            <option value="Կենցաղային">🏠 Կենցաղային</option>
-                            <option value="Աքսեսուարներ">⌚ Աքսեսուարներ</option>
-                        </select>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Բնութագիր</label>
-                        <textarea id="description" rows="3" class="glass-input w-full p-3.5 md:p-4 rounded-xl md:rounded-2xl" placeholder="Ապրանքի կարճ նկարագրությունը..."></textarea>
-                    </div>
-                </div>
-
-                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
-                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Ապրանքի Նկարներ</label>
-                    <input type="file" id="imageInput" accept="image/*" multiple class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
-                    
-                    <div id="imagePreviews" class="flex gap-3 overflow-x-auto hide-scrollbar py-3 mt-2"></div>
-                </div>
-
-                <button type="submit" id="submitProductBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 md:py-5 rounded-xl md:rounded-2xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform active:scale-[0.98]">
-                    Ավելացնել Բազայում
-                </button>
-            </form>
-            <div id="productStatus" class="mt-4 text-center font-bold text-sm hidden p-4 rounded-xl"></div>
-        </div>
-
-        <div id="tabSettings" class="hidden">
-            <form id="settingsForm" class="space-y-4 md:space-y-5">
-                <div class="bg-indigo-50 p-4 rounded-xl md:rounded-2xl border border-indigo-100">
-                    <p class="text-xs md:text-sm text-indigo-700 font-medium">Այս տվյալները կցուցադրվեն խանութի կոնտակտային կոճակներում:</p>
-                </div>
-
+        <div id="tabAdd" class="tab-content hidden">
+            <form id="addForm" class="space-y-4">
+                <input type="hidden" id="editId">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-xs font-bold text-gray-500 mb-1.5">WhatsApp (374...)</label><input type="text" id="setWa" class="glass-input w-full p-3.5 rounded-xl"></div>
-                    <div><label class="block text-xs font-bold text-gray-500 mb-1.5">Հեռախոս (+374...)</label><input type="text" id="setPhone" class="glass-input w-full p-3.5 rounded-xl"></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-500 mb-1.5">Instagram Հղում</label><input type="url" id="setIg" class="glass-input w-full p-3.5 rounded-xl"></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-500 mb-1.5">TikTok Հղում</label><input type="url" id="setTt" class="glass-input w-full p-3.5 rounded-xl"></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-500 mb-1.5">Facebook Հղում</label><input type="url" id="setFb" class="glass-input w-full p-3.5 rounded-xl"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Անվանում</label><input type="text" id="title" required class="glass-input"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Գին</label><input type="number" id="price" required class="glass-input"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Զեղչված Գին</label><input type="number" id="discountPrice" class="glass-input"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Կատեգորիա</label><select id="category" class="glass-input" required onchange="updateSubcatSelect()"></select></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Ենթակատեգորիա</label><select id="subcategory" class="glass-input"><option value="">Ընտրեք...</option></select></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Բնութագիր</label><textarea id="description" rows="3" class="glass-input"></textarea></div>
                 </div>
-                
-                <button type="submit" id="submitSettingsBtn" class="w-full bg-slate-800 text-white font-bold py-4 md:py-5 rounded-xl md:rounded-2xl hover:bg-slate-900 transition-all mt-4 transform active:scale-[0.98]">
-                    Պահպանել Կարգավորումները
-                </button>
+                <div class="bg-indigo-50 p-4 rounded-xl">
+                    <input type="file" id="imageInput" accept="image/*" multiple class="text-sm">
+                    <div id="imagePreviews" class="flex gap-2 overflow-x-auto mt-2"></div>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">Պահպանել</button>
             </form>
-            <div id="settingsStatus" class="mt-4 text-center font-bold text-sm hidden p-4 rounded-xl"></div>
+            <div id="formStatus" class="mt-3 text-center text-sm font-bold hidden p-3 rounded-xl"></div>
         </div>
 
+        <div id="tabCats" class="tab-content hidden space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-bold mb-3 text-sm text-gray-500 uppercase">➕ Գլխավոր</h3>
+                    <div class="flex gap-2"><input type="text" id="newCatName" class="glass-input"><button onclick="addCategory()" class="bg-indigo-600 text-white px-4 rounded-xl font-bold">+</button></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200">
+                    <h3 class="font-bold mb-3 text-sm text-gray-500 uppercase">➕ Ենթակատեգորիա</h3>
+                    <select id="parentCatSelect" class="glass-input mb-2"></select>
+                    <div class="flex gap-2"><input type="text" id="newSubcatName" class="glass-input"><button onclick="addSubcategory()" class="bg-indigo-600 text-white px-4 rounded-xl font-bold">+</button></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl border p-4"><div id="categoriesList" class="space-y-3"></div></div>
+        </div>
+
+        <div id="tabSet" class="tab-content hidden">
+            <form id="settingsForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">WhatsApp</label><input type="text" id="setWa" class="glass-input"></div>
+                    <div><label class="text-xs font-bold text-gray-500 uppercase">Հեռախոս</label><input type="text" id="setPhone" class="glass-input"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Instagram Հղում</label><input type="url" id="setIg" class="glass-input"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">TikTok Հղում</label><input type="url" id="setTt" class="glass-input"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-500 uppercase">Facebook Հղում</label><input type="url" id="setFb" class="glass-input"></div>
+                </div>
+                <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl">Պահպանել</button>
+                <div id="settingsStatus" class="mt-2 text-center text-sm font-bold hidden p-3 rounded-xl"></div>
+            </form>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU",
-            authDomain: "online-shop-74e3e.firebaseapp.com",
-            projectId: "online-shop-74e3e",
-            storageBucket: "online-shop-74e3e.firebasestorage.app",
-            messagingSenderId: "110533352997",
-            appId: "1:110533352997:web:a406119b43a8250abba9cc"
+        const app = initializeApp({ apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU", authDomain: "online-shop-74e3e.firebaseapp.com", projectId: "online-shop-74e3e" });
+        const db = getFirestore(app); const IMGBB_KEY = "e134fd6a4cb5bc87bedee58fe7eb70c6";
+
+        // --- ԱՆՎՏԱՆԳՈՒԹՅՈՒՆ (LOGIN) ---
+        const ADMIN_PASS = "9598";
+        window.checkAuth = () => {
+            const val = document.getElementById('adminPass').value;
+            const rem = document.getElementById('rememberMe').checked;
+            if(val === ADMIN_PASS) {
+                if(rem) localStorage.setItem('adminAuth', ADMIN_PASS);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.body.classList.remove('items-center', 'justify-center'); document.body.classList.add('block');
+                initAdmin();
+            } else { document.getElementById('loginErr').classList.remove('hidden'); }
         };
+        window.logout = () => { localStorage.removeItem('adminAuth'); location.reload(); };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const IMGBB_API_KEY = "e134fd6a4cb5bc87bedee58fe7eb70c6";
-
-        const switchTab = (tab) => {
-            const isProd = tab === 'product';
-            document.getElementById('tabProductBtn').classList.toggle('active', isProd);
-            document.getElementById('tabSettingsBtn').classList.toggle('active', !isProd);
-            document.getElementById('tabProduct').classList.toggle('hidden', !isProd);
-            document.getElementById('tabSettings').classList.toggle('hidden', isProd);
-            if(!isProd) loadSettings();
-        };
-
-        document.getElementById('tabProductBtn').onclick = () => switchTab('product');
-        document.getElementById('tabSettingsBtn').onclick = () => switchTab('settings');
-
-        let selectedFiles = [];
-        const imageInput = document.getElementById('imageInput');
-        const previewsContainer = document.getElementById('imagePreviews');
-
-        imageInput.addEventListener('change', (e) => {
-            Array.from(e.target.files).forEach(file => {
-                selectedFiles.push({ file: file, previewUrl: URL.createObjectURL(file) });
-            });
-            renderPreviews();
-            imageInput.value = '';
-        });
-
-        const renderPreviews = () => {
-            previewsContainer.innerHTML = '';
-            selectedFiles.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = "img-preview-card group";
-                card.innerHTML = `
-                    <img src="${item.previewUrl}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity">
-                        <button type="button" onclick="window.delImg(${index})" class="bg-red-500 text-white px-3 py-1 rounded-md text-[10px] font-bold">Ջնջել</button>
-                    </div>
-                `;
-                previewsContainer.appendChild(card);
-            });
-        };
-
-        window.delImg = (index) => { selectedFiles.splice(index, 1); renderPreviews(); };
-
-        document.getElementById('addForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitProductBtn');
-            const status = document.getElementById('productStatus');
-
-            if(selectedFiles.length === 0) { alert("Ավելացրեք նկար"); return; }
-
-            btn.disabled = true;
-            status.className = "mt-4 text-center font-bold text-sm p-4 rounded-xl bg-blue-50 text-blue-600 block";
-            
-            try {
-                let uploadedUrls = [];
-                for (let i = 0; i < selectedFiles.length; i++) {
-                    status.innerText = `Բեռնվում է նկար ${i+1}/${selectedFiles.length}...`;
-                    const fd = new FormData(); fd.append("image", selectedFiles[i].file);
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: fd });
-                    const data = await res.json();
-                    uploadedUrls.push(data.data.url);
-                }
-
-                status.innerText = "Պահպանվում է բազայում...";
-                await addDoc(collection(db, "products"), {
-                    title: document.getElementById('title').value.trim(),
-                    price: Number(document.getElementById('price').value),
-                    discountPrice: Number(document.getElementById('discountPrice').value) || 0,
-                    category: document.getElementById('category').value,
-                    description: document.getElementById('description').value.trim(), // ԱՎԵԼԱՑՎԱԾ Է ԲՆՈՒԹԱԳԻՐԸ
-                    images: uploadedUrls,
-                    imageUrl: uploadedUrls[0],
-                    createdAt: serverTimestamp()
-                });
-
-                status.className = "mt-4 text-center font-bold text-sm p-4 rounded-xl bg-green-50 text-green-600 block";
-                status.innerText = "✨ Ապրանքը հաջողությամբ ավելացվեց!";
-                document.getElementById('addForm').reset();
-                selectedFiles = []; renderPreviews();
-                setTimeout(() => status.classList.add('hidden'), 4000);
-            } catch (err) {
-                status.className = "mt-4 text-center font-bold text-sm p-4 rounded-xl bg-red-50 text-red-600 block";
-                status.innerText = "Սխալ առաջացավ, փորձեք կրկին:";
-            } finally { btn.disabled = false; }
-        });
-
-        const setRef = doc(db, "settings", "global");
-        async function loadSettings() {
-            const snap = await getDoc(setRef);
-            if(snap.exists()) {
-                const d = snap.data();
-                document.getElementById('setWa').value = d.whatsapp || "";
-                document.getElementById('setPhone').value = d.phone || "";
-                document.getElementById('setIg').value = d.instagram || "";
-                document.getElementById('setTt').value = d.tiktok || "";
-                document.getElementById('setFb').value = d.facebook || "";
-            }
+        // Auto-login if remembered
+        if(localStorage.getItem('adminAuth') === ADMIN_PASS) {
+            document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminDashboard').classList.remove('hidden');
+            document.body.classList.remove('items-center', 'justify-center'); document.body.classList.add('block');
+            initAdmin();
         }
 
-        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitSettingsBtn');
-            const status = document.getElementById('settingsStatus');
-            btn.disabled = true;
+        let categoriesTree = {}; let products = []; let selectedFiles = [];
 
-            try {
-                await setDoc(setRef, {
-                    whatsapp: document.getElementById('setWa').value.trim(),
-                    phone: document.getElementById('setPhone').value.trim(),
-                    instagram: document.getElementById('setIg').value.trim(),
-                    tiktok: document.getElementById('setTt').value.trim(),
-                    facebook: document.getElementById('setFb').value.trim(),
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-                status.className = "mt-4 text-center font-bold text-sm p-4 rounded-xl bg-green-50 text-green-600 block";
-                status.innerText = "✅ Պահպանվեց:";
-            } catch (err) {
-                status.className = "mt-4 text-center font-bold text-sm p-4 rounded-xl bg-red-50 text-red-600 block";
-                status.innerText = "Սխալ:";
-            } finally {
-                btn.disabled = false;
-                setTimeout(() => status.classList.add('hidden'), 3000);
+        function initAdmin() {
+            loadCategories(); loadProducts(); loadSettings(); loadOrders();
+        }
+
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('active');
+            
+            if(tabId === 'tabAdd' && !document.getElementById('editId').value) {
+                document.getElementById('addForm').reset(); document.getElementById('submitBtn').innerText = "Պահպանել"; document.getElementById('submitBtn').classList.replace('bg-green-600', 'bg-indigo-600'); document.getElementById('imagePreviews').innerHTML = ''; selectedFiles = [];
             }
-        });
-    </script>
-</body>
-</html>
+            if(tabId === 'tabProductsList') loadProducts();
+            if(tabId === 'tabOrders') loadOrders();
+        };
+
+        // --- ՊԱՏՎԵՐՆԵՐԻ ԼՈԳԻԿԱ ---
+        async function loadOrders() {
+            const snap = await getDocs(query(collection(db, "orders"), orderBy("createdAt", "desc")));
+            const list = document.getElementById('ordersList'); list.innerHTML = '';
+            if(snap.empty) { list.innerHTML = '<p class="text-gray-400">Դեռ պատվերներ չկան:</p>'; return; }
+            
+            snap.docs.forEach(docSnap => {
+                const o = docSnap.data(); const id = docSnap.id;
+                let statusColor = o.status === 'Նոր' ? 'bg-blue-100 text-blue-700' : (o.status === 'Առաքվում է' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700');
+                
+                let itemsHtml = o.items.map(i => `<div class="flex items-center gap-2 mt-2"><img src="${i.image}" class="w-8 h-8 rounded"><span class="text-xs font-bold">${i.title} (${i.qty} հատ)</span></div>`).join('');
+                
+                list.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                        <select onchange="updateOrderStatus('${id}', this.value)" class="absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded outline-none cursor-pointer ${statusColor}">
+                            <option value="Նոր" ${o.status==='Նոր'?'selected':''}>Նոր</option>
+                            <option value="Առաքվում է" ${o.status==='Առաքվում է'?'selected':''}>Առաքվում է</option>
+                            <option value="Ավարտված" ${o.status==='Ավարտված'?'selected':''}>Ավարտված</option>
+                        </select>
+                        <div class="text-sm">
+                            <p>👤 <span class="font-bold">${o.customer.name}</span></p>
+                            <p>📞 <a href="tel:${o.customer.phone}" class="text-indigo-600 font-bold">${o.customer.phone}</a></p>
+                            <p>📍 ${o.customer.address}</p>
+                            <p class="mt-2 text-indigo-600 font-black">💰 ${new Intl.NumberFormat('hy-AM').format(o.total)} ֏</p>
+                        </div>
+                        <div class="mt-3 border-t pt-2">${itemsHtml}</div>
+                    </div>
+                `;
+            });
+        }
+        window.updateOrderStatus = async (id, status) => { await updateDoc(doc(db, "orders", id), {status}); loadOrders(); };
+
+        // --- ԿԱՏԵԳՈՐԻԱՆԵՐ ---
+        async function loadCategories() {
+            const snap = await getDoc(doc(db, "settings", "categories"));
+            if(snap.exists() && snap.data().tree) categoriesTree = snap.data().tree; else categoriesTree = {};
+            renderCategoriesUI();
+        }
+        async function saveCategoriesToDB() { await setDoc(doc(db, "settings", "categories"), { tree: categoriesTree }, { merge: true }); renderCategoriesUI(); }
+        function renderCategoriesUI() {
+            let opts = '<option value="">Ընտրեք...</option>'; let fil = '<option value="Բոլորը">Բոլորը</option>';
+            Object.keys(categoriesTree).forEach(cat => { opts += `<option value="${cat}">${cat}</option>`; fil += `<option value="${cat}">${cat}</option>`; });
+            document.getElementById('parentCatSelect').innerHTML = opts; document.getElementById('category').innerHTML = opts; document.getElementById('adminCatFilter').innerHTML = fil;
+            
+            const listDiv = document.getElementById('categoriesList'); listDiv.innerHTML = '';
+            Object.keys(categoriesTree).forEach(cat => {
+                let html = `<div class="p-3 bg-gray-50 rounded-lg mb-2 border"><div class="flex justify-between font-bold text-indigo-700"><span>📁 ${cat}</span><button onclick="deleteCategory('${cat}')" class="text-red-500 text-sm">Ջնջել</button></div><div class="ml-6 mt-2 flex flex-wrap gap-2">`;
+                categoriesTree[cat].forEach(sub => { html += `<span class="bg-white border px-2 py-1 rounded text-xs">${sub} <button onclick="deleteSubcategory('${cat}', '${sub}')" class="text-red-400 font-bold hover:text-red-600">×</button></span>`; });
+                listDiv.innerHTML += html + `</div></div>`;
+            });
+        }
+        window.addCategory = () => { const val = document.getElementById('newCatName').value.trim(); if(val && !categoriesTree[val]) { categoriesTree[val] = []; document.getElementById('newCatName').value=''; saveCategoriesToDB(); }};
+        window.addSubcategory = () => { const p = document.getElementById('parentCatSelect').value; const s = document.getElementById('newSubcatName').value.trim(); if(p && s && !categoriesTree[p].includes(s)) { categoriesTree[p].push(s); document.getElementById('newSubcatName').value=''; saveCategoriesToDB(); }};
+        window.deleteCategory = (cat) => { if(confirm('Ջնջե՞լ')) { delete categoriesTree[cat]; saveCategoriesToDB(); }};
+        window.deleteSubcategory = (c, s) => { categoriesTree[c] = categoriesTree[c].filter(x => x !== s); saveCategoriesToDB(); };
+        window.updateSubcatSelect = () => { const cat = document.getElementById('category').value; const sel = document.getElementById('subcategory'); sel.innerHTML = '<option value="">Ընտրեք</option>'; if(categoriesTree[cat]) categoriesTree[cat].forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`); };
+
+        // --- ԱՊՐԱՆՔՆԵՐ ---
+        async function loadProducts() {
+            const snap = await getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")));
+            products = snap.docs.map(d => ({id: d.id, ...d.data()})); renderAdminProducts();
+        }
+        function renderAdminProducts() {
+            const tb = document.getElementById('adminProductsTbody'); const s = document.getElementById('adminSearch').value.toLowerCase(); const f = document.getElementById('adminCatFilter').value; tb.innerHTML = '';
+            products.filter(p => (f === 'Բոլորը' || p.category === f) && p.title.toLowerCase().includes(s)).forEach(p => {
+                const img = (p.images && p.images.length > 0) ? p.images[0] : (p.imageUrl || '');
+                tb.innerHTML += `<tr class="hover:bg-gray-50"><td class="p-3"><img src="${img}" class="w-10 h-10 rounded object-cover"></td><td class="p-3"><div class="font-bold">${p.title}</div><div class="text-[10px] text-gray-400">${p.category}</div></td><td class="p-3 font-bold">${p.price}֏</td><td class="p-3 text-right"><button onclick="editProduct('${p.id}')" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs mr-1">✏️</button><button onclick="deleteProduct('${p.id}')" class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">🗑️</button></td></tr>`;
+            });
+        }
+        document.getElementById('adminSearch').addEventListener('input', renderAdminProducts); document.getElementById('adminCatFilter').addEventListener('change', renderAdminProducts);
+        window.deleteProduct = async (id) => { if(confirm('Ջնջե՞լ')) { await deleteDoc(doc(db, "products", id)); loadProducts(); }};
+        window.editProduct = (id) => {
+            const p = products.find(x => x.id === id); if(!p) return;
+            document.getElementById('editId').value = p.id; document.getElementById('title').value = p.title; document.getElementById('price').value = p.price; document.getElementById('discountPrice').value = p.discountPrice || '';
+            document.getElementById('category').value = p.category || ''; updateSubcatSelect(); document.getElementById('subcategory').value = p.subcategory || ''; document.getElementById('description').value = p.description || '';
+            document.getElementById('submitBtn').innerText = "Թարմացնել"; document.getElementById('submitBtn').classList.replace('bg-indigo-600', 'bg-green-600'); switchTab('tabAdd');
+        };
+
+        const imgInput = document.getElementById('imageInput');
+        imgInput.addEventListener('change', (e) => { Array.from(e.target.files).forEach(f => selectedFiles.push({ file:f, url: URL.createObjectURL(f) })); document.getElementById('imagePreviews').innerHTML = selectedFiles.map((f,i) => `<div class="relative w-16 h-16"><img src="${f.url}" class="w-full h-full object-cover rounded"><button type="button" onclick="window.delImg(${i})" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] px-1 rounded">X</button></div>`).join(''); imgInput.value = ''; });
+        window.delImg = (i) => { selectedFiles.splice(i, 1); imgInput.dispatchEvent(new Event('chang
