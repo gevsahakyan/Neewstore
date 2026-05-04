@@ -6,329 +6,270 @@
     <title>Newstore - Պրեմիում Խանութ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f6f9; min-height: 100vh; margin: 0; padding-bottom: 2rem; overflow-x: hidden; }
-        
-        /* Քարտերի Դիզայն */
-        .glass-card { 
-            background: #ffffff; 
-            border: 1px solid rgba(200, 210, 224, 0.5); 
-            border-radius: 20px; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); 
-            transition: all 0.3s ease; 
-            cursor: pointer; 
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            height: 100%; 
-            position: relative;
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f6f9; min-height: 100vh; margin: 0; display: flex; flex-direction: column; overflow-x: hidden; }
+        .glass-card { background: #ffffff; border: 1px solid rgba(200, 210, 224, 0.5); border-radius: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column; overflow: hidden; height: 100%; position: relative; }
         .glass-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); border-color: rgba(200, 210, 224, 0.9); }
-        
         .img-container { aspect-ratio: 1 / 1; width: 100%; background: #ffffff; position: relative; overflow: hidden; flex-shrink: 0; padding: 10px; }
         .img-container img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.7s ease; }
         .glass-card:hover .img-container img { transform: scale(1.05); }
-
-        /* Մոդալներ */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 100; display: none; opacity: 0; transition: opacity 0.3s; }
-        .modal-content { 
-            position: fixed; left: 0; right: 0; bottom: 0; background: #fff; z-index: 101; 
-            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); 
-            border-radius: 28px 28px 0 0; max-height: 90vh; overflow-y: auto;
-        }
-        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); z-index: 100; display: none; opacity: 0; transition: opacity 0.3s; }
+        .modal-content { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; z-index: 101; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); border-radius: 28px 28px 0 0; max-height: 90vh; overflow-y: auto; }
         @media (min-width: 768px) {
             .modal-content { top: 50%; left: 50%; bottom: auto; right: auto; transform: translate(-50%, -40%) scale(0.95); width: 90%; max-width: 850px; border-radius: 24px; opacity: 0; transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1); }
             .modal-content.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
-        
         .modal-overlay.active { display: block; opacity: 1; }
         .modal-content.active-mobile { transform: translateY(0); }
-
-        .social-chip { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: #f8fafc; transition: all 0.2s; cursor: pointer; text-decoration: none; color: #334155; font-weight: 700; font-size: 0.95rem; }
-        .social-chip:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-        .icon-box { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;}
-        
-        .bg-wa { background: #25D366; } 
-        .bg-phone { background: #4F46E5; }
-        .loader { border-top-color: #4f46e5; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .cat-chip { white-space: nowrap; transition: all 0.2s; }
+        .cat-chip.active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px rgba(79,70,229,0.3); }
+        .badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .icon-btn { position: relative; padding: 8px; border-radius: 12px; background: #f1f5f9; transition: 0.3s; cursor: pointer; }
+        .icon-btn:hover { background: #e2e8f0; }
+        .fav-btn { position: absolute; top: 10px; left: 10px; z-index: 10; background: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 18px; }
+        .fav-btn.active { color: #ef4444; }
     </style>
 </head>
 <body>
 
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 px-4 py-4 border-b border-gray-200/60 shadow-sm">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">NEWSTORE</h1>
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-gray-200/60 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight cursor-pointer" onclick="filterByCategory('Բոլորը')">NEWSTORE</h1>
+            
+            <div class="w-full md:w-96 relative">
+                <input type="text" id="searchInput" placeholder="Որոնել ապրանքներ..." class="w-full bg-gray-50 border border-gray-200 text-sm py-3 pl-11 pr-4 rounded-2xl focus:outline-none focus:border-indigo-500 transition-all">
+                <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="icon-btn" onclick="openFavorites()">
+                    ❤️<div id="favCount" class="badge hidden">0</div>
+                </div>
+                <div class="icon-btn" onclick="openCart()">
+                    🛒<div id="cartCount" class="badge hidden">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto hide-scrollbar" id="categoryChips">
+            <button onclick="filterByCategory('Բոլորը')" class="cat-chip active px-4 py-1.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 bg-white">Բոլորը</button>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        <div id="loading" class="flex justify-center items-center py-20">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-        </div>
-
-        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 hidden">
-            </div>
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-1">
+        <div id="loading" class="flex justify-center items-center py-20"><div class="animate-spin rounded-full border-4 border-indigo-500 border-t-transparent h-12 w-12"></div></div>
+        <div id="noResults" class="hidden text-center py-20 text-gray-400 font-bold text-lg">Ապրանքներ չեն գտնվել</div>
+        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 hidden"></div>
     </main>
+
+    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <h3 class="font-black text-gray-800 text-lg mb-4">Կապ Մեզ Հետ</h3>
+            <div id="footerLinks" class="flex justify-center gap-4 mb-4"></div>
+            <p class="text-xs text-gray-400 font-bold">© 2024 Newstore. Բոլոր իրավունքները պաշտպանված են:</p>
+        </div>
+    </footer>
 
     <div id="modalOverlay" class="modal-overlay"></div>
 
-    <div id="productModal" class="modal-content shadow-2xl">
-        <div class="p-4 md:p-6 flex flex-col md:flex-row gap-6">
-            <button onclick="closeModal()" class="absolute top-4 right-4 bg-gray-100 text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 z-10 md:hidden">✕</button>
-
-            <div class="w-full md:w-1/2 flex flex-col gap-3">
-                <div class="aspect-square bg-white rounded-2xl overflow-hidden relative border border-gray-200 p-2">
-                    <img id="modalImg" src="" class="w-full h-full object-contain" alt="Product Image">
-                </div>
-                <div id="modalThumbnails" class="flex gap-2 overflow-x-auto hide-scrollbar py-1"></div>
+    <div id="productModal" class="modal-content shadow-2xl p-4 md:p-6 flex flex-col md:flex-row gap-6">
+        <button onclick="closeModal('productModal')" class="absolute top-4 right-4 bg-gray-100 text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 z-10 md:hidden">✕</button>
+        <div class="w-full md:w-1/2 flex flex-col gap-3">
+            <div class="aspect-square bg-white rounded-2xl overflow-hidden relative border border-gray-200 p-2">
+                <img id="modalImg" src="" class="w-full h-full object-contain">
             </div>
-
-            <div class="w-full md:w-1/2 flex flex-col justify-center relative">
-                <button onclick="closeModal()" class="absolute -top-2 -right-2 bg-gray-100 text-gray-500 w-8 h-8 rounded-full hidden md:flex items-center justify-center hover:bg-gray-200 z-10">✕</button>
-
-                <div class="mb-4">
-                    <span id="modalCategory" class="text-xs font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 px-2 py-1 rounded-md"></span>
-                    <h2 id="modalTitle" class="text-2xl md:text-3xl font-black text-gray-800 mt-2 leading-tight"></h2>
-                    
-                    <div id="modalDiscountUI" class="hidden mt-5 p-5 rounded-3xl bg-gradient-to-br from-[#fffdf5] to-[#ffeeb5] border border-[#fce390] relative shadow-sm">
-                        <span class="text-[12px] font-black text-gray-400 uppercase tracking-wider mb-1 block">ԳԻՆ</span>
-                        <div class="flex items-center gap-3">
-                            <span id="modalDiscountActivePrice" class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight"></span>
-                            <span id="modalDiscountOldPrice" class="text-lg md:text-xl font-bold text-gray-400 line-through decoration-2 relative top-1"></span>
-                        </div>
-                        <div id="modalDiscountPercent" class="absolute top-4 right-4 bg-[#e82f3c] text-white text-sm font-black px-3.5 py-1.5 rounded-full shadow-[0_5px_15px_rgba(232,47,60,0.5)]">
-                        </div>
-                        <div class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[#ebd07d] text-[#b37517] bg-[#fcf0c2] text-xs font-bold">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                            Զեղչը ակտիվ է
-                        </div>
-                    </div>
-
-                    <div id="modalRegularUI" class="mt-4 mb-2 hidden">
-                        <span class="text-[12px] font-black text-gray-400 uppercase tracking-wider mb-1 block">ԳԻՆ</span>
-                        <span id="modalRegularPrice" class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight"></span>
-                    </div>
-
-                    <div class="mt-5 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Բնութագիր</h4>
-                        <p id="modalDescription" class="text-sm text-gray-700 whitespace-pre-line leading-relaxed"></p>
-                    </div>
-                </div>
-
-                <div class="space-y-3 mt-auto">
-                    <a id="btnWa" href="#" target="_blank" class="social-chip !bg-[#25D366] !text-white !border-transparent hover:!bg-[#1DA851] shadow-[0_4px_15px_rgba(37,211,102,0.3)]">
-                        <span class="text-xl">💬</span>
-                        <span class="flex-1 text-center mr-6">Պատվիրել WhatsApp-ով</span>
-                    </a>
-                    <a id="btnPhone" href="#" class="social-chip">
-                        <div class="icon-box bg-phone">📞</div>
-                        <span class="flex-1">Զանգահարել</span>
-                    </a>
-                </div>
-            </div>
+            <div id="modalThumbnails" class="flex gap-2 overflow-x-auto hide-scrollbar py-1"></div>
         </div>
+        <div class="w-full md:w-1/2 flex flex-col justify-center relative">
+            <button onclick="closeModal('productModal')" class="absolute -top-2 -right-2 bg-gray-100 text-gray-500 w-8 h-8 rounded-full hidden md:flex items-center justify-center hover:bg-gray-200 z-10">✕</button>
+            <div class="mb-4">
+                <h2 id="modalTitle" class="text-2xl md:text-3xl font-black text-gray-800 mt-1 leading-tight"></h2>
+                <div class="mt-4"><span id="modalPrice" class="text-3xl font-black text-gray-900"></span></div>
+                <div class="mt-5 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <p id="modalDescription" class="text-sm text-gray-700 whitespace-pre-line"></p>
+                </div>
+            </div>
+            <button id="btnAddToCart" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold mt-auto shadow-lg">🛒 Ավելացնել Զամբյուղ</button>
+        </div>
+    </div>
+
+    <div id="cartModal" class="modal-content shadow-2xl p-6 flex flex-col h-[80vh]">
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <h2 class="text-2xl font-black text-gray-800">🛒 Ձեր Զամբյուղը</h2>
+            <button onclick="closeModal('cartModal')" class="bg-gray-100 text-gray-500 w-8 h-8 rounded-full">✕</button>
+        </div>
+        <div id="cartItems" class="flex-1 overflow-y-auto space-y-3 mb-4 hide-scrollbar"></div>
+        <div class="border-t pt-4">
+            <div class="flex justify-between text-lg font-black mb-4"><span>Ընդհանուր՝</span><span id="cartTotal">0 ֏</span></div>
+            <form id="checkoutForm" class="space-y-3 hidden">
+                <input type="text" id="orderName" placeholder="Անուն Ազգանուն" required class="w-full bg-gray-50 border p-3 rounded-xl text-sm">
+                <input type="text" id="orderPhone" placeholder="Հեռախոսահամար" required class="w-full bg-gray-50 border p-3 rounded-xl text-sm">
+                <input type="text" id="orderAddress" placeholder="Առաքման Հասցե" required class="w-full bg-gray-50 border p-3 rounded-xl text-sm">
+                <button type="submit" id="submitOrderBtn" class="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold shadow-lg">Հաստատել և Պատվիրել WhatsApp-ով</button>
+            </form>
+            <button id="showCheckoutBtn" onclick="toggleCheckout()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Ձևակերպել Պատվերը</button>
+        </div>
+    </div>
+
+    <div id="favModal" class="modal-content shadow-2xl p-6 flex flex-col h-[70vh]">
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <h2 class="text-2xl font-black text-gray-800">❤️ Հավանած Ապրանքներ</h2>
+            <button onclick="closeModal('favModal')" class="bg-gray-100 text-gray-500 w-8 h-8 rounded-full">✕</button>
+        </div>
+        <div id="favItems" class="flex-1 overflow-y-auto grid grid-cols-2 gap-4 hide-scrollbar"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, addDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU",
-            authDomain: "online-shop-74e3e.firebaseapp.com",
-            projectId: "online-shop-74e3e",
-            storageBucket: "online-shop-74e3e.firebasestorage.app",
-            messagingSenderId: "110533352997",
-            appId: "1:110533352997:web:a406119b43a8250abba9cc"
-        };
-
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({ apiKey: "AIzaSyDkhXGDcXbHOjFajdmW6XUc7VW38F9I-oU", authDomain: "online-shop-74e3e.firebaseapp.com", projectId: "online-shop-74e3e" });
         const db = getFirestore(app);
 
-        let globalSettings = { whatsapp: "", phone: "" };
-        let productsData = [];
+        let globalSettings = {}; let productsData = []; let categoriesData = {};
+        let currentFilter = 'Բոլորը'; let currentSearch = '';
+        
+        let cart = JSON.parse(localStorage.getItem('newstore_cart')) || [];
+        let favs = JSON.parse(localStorage.getItem('newstore_favs')) || [];
 
-        const formatMoney = (num) => {
-            const val = Number(num);
-            if (isNaN(val)) return '0 ֏';
-            return new Intl.NumberFormat('hy-AM').format(val) + ' ֏';
-        };
+        const formatMoney = (num) => new Intl.NumberFormat('hy-AM').format(Number(num)) + ' ֏';
 
         async function initStore() {
             try {
-                const setSnap = await getDoc(doc(db, "settings", "global"));
+                const [setSnap, catSnap, prodSnap] = await Promise.all([
+                    getDoc(doc(db, "settings", "global")),
+                    getDoc(doc(db, "settings", "categories")),
+                    getDocs(query(collection(db, "products"), orderBy("createdAt", "desc")))
+                ]);
                 if(setSnap.exists()) globalSettings = setSnap.data();
-
-                const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
+                if(catSnap.exists() && catSnap.data().tree) categoriesData = catSnap.data().tree;
+                productsData = prodSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                querySnapshot.forEach((doc) => {
-                    productsData.push({ id: doc.id, ...doc.data() });
-                });
-
-                renderProducts();
-            } catch (error) {
-                console.error("Error loading data:", error);
-                document.getElementById('loading').innerHTML = "<p class='text-red-500 font-bold'>Կապի խափանում։</p>";
-            }
+                renderCategoryChips(); renderFooter(); filterAndRender(); updateBadges();
+            } catch (err) { console.error(err); document.getElementById('loading').innerHTML = "<p class='text-red-500 font-bold'>Կապի խափանում։</p>"; }
         }
 
-        function renderProducts() {
-            const grid = document.getElementById('productGrid');
-            const loader = document.getElementById('loading');
-            grid.innerHTML = '';
-            
-            productsData.forEach((product, index) => {
-                const price = Number(product.price) || 0;
-                const discountPrice = Number(product.discountPrice) || 0;
-                const hasDiscount = discountPrice > 0 && discountPrice < price;
-                const activePrice = hasDiscount ? discountPrice : price;
-                
-                const title = product.title || "Անհայտ Ապրանք";
-                const category = product.category || "Ապրանք";
-                
-                let imageSrc = 'https://via.placeholder.com/300';
-                if (product.images && product.images.length > 0) imageSrc = product.images[0];
-                else if (product.imageUrl) imageSrc = product.imageUrl;
+        function renderFooter() {
+            let html = '';
+            if(globalSettings.phone) html += `<a href="tel:${globalSettings.phone}" class="bg-indigo-100 text-indigo-600 p-3 rounded-full text-xl hover:bg-indigo-200">📞</a>`;
+            if(globalSettings.whatsapp) html += `<a href="https://wa.me/${globalSettings.whatsapp}" class="bg-green-100 text-green-600 p-3 rounded-full text-xl hover:bg-green-200">💬</a>`;
+            if(globalSettings.instagram) html += `<a href="${globalSettings.instagram}" class="bg-pink-100 text-pink-600 p-3 rounded-full text-xl hover:bg-pink-200">📸</a>`;
+            if(globalSettings.facebook) html += `<a href="${globalSettings.facebook}" class="bg-blue-100 text-blue-600 p-3 rounded-full text-xl hover:bg-blue-200">📘</a>`;
+            if(globalSettings.tiktok) html += `<a href="${globalSettings.tiktok}" class="bg-black text-white p-3 rounded-full text-xl hover:bg-gray-800">🎵</a>`;
+            document.getElementById('footerLinks').innerHTML = html;
+        }
 
-                const descSnippet = product.description 
-                    ? `<p class="text-[12px] text-gray-500 mt-2 line-clamp-2 leading-relaxed flex-1">${product.description}</p>` 
-                    : `<div class="flex-1"></div>`;
-                
-                const waMsg = encodeURIComponent(`Բարև Ձեզ, ես ցանկանում եմ պատվիրել՝ ${title} (${formatMoney(activePrice)})`);
-                const waLink = `https://wa.me/${globalSettings.whatsapp}?text=${waMsg}`;
-
-                const card = document.createElement('div');
-                card.className = "glass-card";
-                card.onclick = () => openModal(index);
-                
-                card.innerHTML = `
-                    <div class="img-container">
-                        ${hasDiscount ? `<div class="absolute top-2 right-2 bg-[#e82f3c] shadow-lg shadow-red-500/40 text-white text-[11px] font-black px-2.5 py-1 rounded-md z-10">- ${Math.round(100 - (activePrice/price)*100)}%</div>` : ''}
-                        <img src="${imageSrc}" loading="lazy" alt="${title}">
-                    </div>
-                    
-                    <div class="p-4 flex flex-col flex-1 bg-white">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">${category}</span>
-                        <h3 class="text-sm md:text-base font-bold text-gray-900 line-clamp-2 leading-snug">${title}</h3>
-                        
-                        ${descSnippet}
-                        
-                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between mb-4">
-                            <div class="flex flex-col">
-                                <span class="text-base md:text-xl font-black text-gray-900">${formatMoney(activePrice)}</span>
-                                ${hasDiscount ? `<span class="text-[11px] text-red-500 line-through font-bold mt-0.5">${formatMoney(price)}</span>` : ''}
-                            </div>
-                        </div>
-
-                        <a href="${waLink}" target="_blank" onclick="event.stopPropagation();" class="w-full bg-[#25D366] hover:bg-[#1DA851] text-white py-2.5 rounded-xl flex items-center justify-center gap-2 font-bold text-sm mt-auto transition-all shadow-[0_4px_12px_rgba(37,211,102,0.25)]">
-                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.487-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                            Պատվիրել
-                        </a>
-                    </div>
-                `;
-                grid.appendChild(card);
+        function renderCategoryChips() {
+            const container = document.getElementById('categoryChips');
+            Object.keys(categoriesData).forEach(cat => {
+                container.innerHTML += `<button onclick="filterByCategory('${cat}')" class="cat-chip px-4 py-1.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 bg-white">${cat}</button>`;
             });
-
-            loader.classList.add('hidden');
-            grid.classList.remove('hidden');
         }
 
-        window.openModal = (index) => {
-            try {
-                const product = productsData[index];
-                const price = Number(product.price) || 0;
-                const discountPrice = Number(product.discountPrice) || 0;
-                const hasDiscount = discountPrice > 0 && discountPrice < price;
-                
-                const images = (product.images && product.images.length > 0) ? product.images : [product.imageUrl || 'https://via.placeholder.com/300'];
-                
-                document.getElementById('modalImg').src = images[0];
-                
-                const thumbsContainer = document.getElementById('modalThumbnails');
-                thumbsContainer.innerHTML = '';
-                
-                if(images.length > 1) {
-                    images.forEach((imgUrl, i) => {
-                        const thumb = document.createElement('img');
-                        thumb.src = imgUrl;
-                        thumb.className = `w-14 h-14 md:w-16 md:h-16 rounded-lg object-cover cursor-pointer border-2 transition-all ${i === 0 ? 'border-indigo-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`;
-                        thumb.onclick = () => {
-                            document.getElementById('modalImg').src = imgUrl;
-                            Array.from(thumbsContainer.children).forEach(c => {
-                                c.classList.replace('border-indigo-500', 'border-transparent');
-                                c.classList.replace('opacity-100', 'opacity-60');
-                            });
-                            thumb.classList.replace('border-transparent', 'border-indigo-500');
-                            thumb.classList.replace('opacity-60', 'opacity-100');
-                        };
-                        thumbsContainer.appendChild(thumb);
-                    });
-                }
+        window.filterByCategory = (cat) => {
+            currentFilter = cat;
+            document.querySelectorAll('.cat-chip').forEach(el => {
+                el.classList.toggle('active', el.innerText === cat); el.classList.toggle('text-gray-600', el.innerText !== cat);
+            });
+            filterAndRender();
+        };
 
-                document.getElementById('modalCategory').innerText = product.category || 'Ապրանք';
-                document.getElementById('modalTitle').innerText = product.title || 'Անվանումը բացակայում է';
-                document.getElementById('modalDescription').innerText = product.description || 'Բնութագիրը առկա չէ։';
-                
-                // ԼՈԳԻԿԱ ԶԵՂՉԻ ԵՎ ՍՈՎՈՐԱԿԱՆ ԳՆԻ ՀԱՄԱՐ
-                const discountUI = document.getElementById('modalDiscountUI');
-                const regularUI = document.getElementById('modalRegularUI');
+        document.getElementById('searchInput').addEventListener('input', (e) => { currentSearch = e.target.value.toLowerCase().trim(); filterAndRender(); });
 
-                if(hasDiscount) {
-                    discountUI.classList.remove('hidden');
-                    regularUI.classList.add('hidden');
+        function filterAndRender() {
+            const filtered = productsData.filter(p => (currentFilter === 'Բոլորը' || p.category === currentFilter) && p.title.toLowerCase().includes(currentSearch));
+            const grid = document.getElementById('productGrid'); grid.innerHTML = '';
+            
+            if(filtered.length === 0) { grid.classList.add('hidden'); document.getElementById('noResults').classList.remove('hidden'); }
+            else {
+                document.getElementById('noResults').classList.add('hidden'); grid.classList.remove('hidden');
+                filtered.forEach(p => {
+                    const price = Number(p.discountPrice) > 0 ? Number(p.discountPrice) : Number(p.price);
+                    const isFav = favs.includes(p.id) ? 'active' : 'text-gray-300';
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : (p.imageUrl || '');
                     
-                    document.getElementById('modalDiscountActivePrice').innerText = formatMoney(discountPrice);
-                    document.getElementById('modalDiscountOldPrice').innerText = formatMoney(price);
-                    
-                    const percent = Math.round(100 - (discountPrice/price)*100);
-                    document.getElementById('modalDiscountPercent').innerText = `-${percent}%`;
-                } else {
-                    discountUI.classList.add('hidden');
-                    regularUI.classList.remove('hidden');
-                    
-                    document.getElementById('modalRegularPrice').innerText = formatMoney(price);
-                }
-
-                const waMsg = encodeURIComponent(`Բարև Ձեզ, ես ցանկանում եմ պատվիրել՝ ${product.title} (${formatMoney(hasDiscount ? discountPrice : price)})`);
-                document.getElementById('btnWa').href = `https://wa.me/${globalSettings.whatsapp}?text=${waMsg}`;
-                document.getElementById('btnPhone').href = `tel:${globalSettings.phone}`;
-
-                const overlay = document.getElementById('modalOverlay');
-                const modal = document.getElementById('productModal');
-                
-                overlay.classList.add('active');
-                modal.style.display = 'flex';
-                
-                setTimeout(() => {
-                    if(window.innerWidth >= 768) modal.classList.add('active'); 
-                    else modal.classList.add('active-mobile'); 
-                }, 10);
-                
-                document.body.style.overflow = 'hidden';
-                
-            } catch (error) {
-                console.error("Խնդիր մոդալը բացելիս", error);
+                    const card = document.createElement('div'); card.className = "glass-card";
+                    card.innerHTML = `
+                        <button class="fav-btn ${isFav}" onclick="event.stopPropagation(); toggleFav('${p.id}')">❤️</button>
+                        <div class="img-container" onclick="openModal('${p.id}')"><img src="${img}" loading="lazy"></div>
+                        <div class="p-4 flex flex-col flex-1 bg-white" onclick="openModal('${p.id}')">
+                            <h3 class="text-sm font-bold text-gray-900 line-clamp-2">${p.title}</h3>
+                            <div class="mt-auto pt-2"><span class="text-lg font-black text-indigo-600">${formatMoney(price)}</span></div>
+                        </div>
+                        <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-700 py-2.5 font-bold text-sm transition-colors border-t border-gray-200">🛒 Ավելացնել</button>
+                    `;
+                    grid.appendChild(card);
+                });
             }
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        // --- CART & FAV LOGIC ---
+        function updateBadges() {
+            const cBtn = document.getElementById('cartCount'); const fBtn = document.getElementById('favCount');
+            if(cart.length>0){ cBtn.innerText = cart.reduce((a,b)=>a+b.qty,0); cBtn.classList.remove('hidden'); } else cBtn.classList.add('hidden');
+            if(favs.length>0){ fBtn.innerText = favs.length; fBtn.classList.remove('hidden'); } else fBtn.classList.add('hidden');
+            localStorage.setItem('newstore_cart', JSON.stringify(cart)); localStorage.setItem('newstore_favs', JSON.stringify(favs));
+        }
+
+        window.toggleFav = (id) => {
+            if(favs.includes(id)) favs = favs.filter(x => x !== id); else favs.push(id);
+            updateBadges(); filterAndRender();
         };
 
-        window.closeModal = () => {
-            const overlay = document.getElementById('modalOverlay');
-            const modal = document.getElementById('productModal');
-            
-            overlay.classList.remove('active');
-            modal.classList.remove('active');
-            modal.classList.remove('active-mobile');
-            
-            setTimeout(() => { modal.style.display = 'none'; }, 400); 
-            document.body.style.overflow = '';
+        window.addToCart = (id) => {
+            const item = cart.find(x => x.id === id);
+            if(item) item.qty++; else cart.push({id, qty: 1});
+            updateBadges(); alert("Ավելացվեց զամբյուղում");
         };
 
-        document.getElementById('modalOverlay').addEventListener('click', closeModal);
+        window.removeFromCart = (id) => { cart = cart.filter(x => x.id !== id); updateBadges(); renderCart(); };
 
-        initStore();
-    </script>
-</body>
-</html>
+        window.openCart = () => {
+            renderCart(); document.getElementById('modalOverlay').classList.add('active');
+            const m = document.getElementById('cartModal'); m.style.display = 'flex'; setTimeout(()=>m.classList.add('active-mobile', 'active'),10);
+            document.getElementById('checkoutForm').classList.add('hidden'); document.getElementById('showCheckoutBtn').classList.remove('hidden');
+        };
+
+        function renderCart() {
+            const list = document.getElementById('cartItems'); list.innerHTML = ''; let total = 0;
+            if(cart.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-10">Զամբյուղը դատարկ է</p>'; document.getElementById('showCheckoutBtn').style.display='none'; }
+            else {
+                document.getElementById('showCheckoutBtn').style.display='block';
+                cart.forEach(item => {
+                    const p = productsData.find(x => x.id === item.id); if(!p) return;
+                    const price = Number(p.discountPrice) > 0 ? Number(p.discountPrice) : Number(p.price);
+                    total += price * item.qty;
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : (p.imageUrl || '');
+                    list.innerHTML += `
+                        <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border">
+                            <img src="${img}" class="w-16 h-16 object-cover rounded-lg bg-white">
+                            <div class="flex-1"><h4 class="text-sm font-bold text-gray-800 line-clamp-1">${p.title}</h4><p class="text-indigo-600 font-bold text-xs">${formatMoney(price)} x ${item.qty}</p></div>
+                            <button onclick="removeFromCart('${p.id}')" class="text-red-500 font-bold p-2">🗑️</button>
+                        </div>`;
+                });
+            }
+            document.getElementById('cartTotal').innerText = formatMoney(total);
+        }
+
+        window.openFavorites = () => {
+            const list = document.getElementById('favItems'); list.innerHTML = '';
+            if(favs.length === 0) list.innerHTML = '<p class="text-center col-span-2 text-gray-400 mt-10">Դեռ չկան հավանածներ</p>';
+            else {
+                favs.forEach(id => {
+                    const p = productsData.find(x => x.id === id); if(!p) return;
+                    const img = (p.images && p.images.length > 0) ? p.images[0] : (p.imageUrl || '');
+                    list.innerHTML += `<div class="border rounded-xl p-2 flex flex-col items-center text-center"><img src="${img}" class="w-20 h-20 object-contain mb-2"><h4 class="text-xs font-bold line-clamp-1 w-full">${p.title}</h4><button onclick="toggleFav('${id}'); openFavorites();" class="mt-2 text-xs text-red-500 font-bold border border-red-200 px-3 py-1 rounded-full">Հեռացնել</button></div>`;
+                });
+            }
+            document.getElementById('modalOverlay').classList.add('active');
+            const m = document.getElementById('favModal'); m.style.display = 'flex'; setTimeout(()=>m.classList.add('active-mobile', 'active'),10);
+        };
+
+        window.openModal = (id) => {
+            const p = productsData.find(x => x.id === id); if(!p) return;
+            const price = Number(p.discountPrice) > 0 ? Number(p.discountPrice) : Number(p.price);
+            const imgs = (p.images && p.images.length > 0) ? p.images : [p.imageUrl || ''];
+            
+            document.getElementById('modalImg').src = imgs[0];
+            document.getElementById('modalTitle').innerText = p.
